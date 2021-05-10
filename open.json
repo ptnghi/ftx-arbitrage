@@ -1,0 +1,118 @@
+[
+    {
+        "success": true,
+        "result": {
+            "id": 46930209281,
+            "clientId": "5606",
+            "market": "ETH/USD",
+            "type": "limit",
+            "side": "buy",
+            "price": 3887.8,
+            "size": 0.004,
+            "status": "new",
+            "filledSize": 0.0,
+            "remainingSize": 0.004,
+            "reduceOnly": false,
+            "liquidation": null,
+            "avgFillPrice": null,
+            "postOnly": false,
+            "ioc": false,
+            "createdAt": "2021-05-10T21:00:23.509487+00:00",
+            "future": null
+        }
+    },
+    {
+        "success": true,
+        "result": {
+            "id": 46930213397,
+            "clientId": "907",
+            "market": "ETH-PERP",
+            "type": "limit",
+            "side": "sell",
+            "price": 3891.8,
+            "size": 0.004,
+            "status": "new",
+            "filledSize": 0.0,
+            "remainingSize": 0.004,
+            "reduceOnly": false,
+            "liquidation": null,
+            "avgFillPrice": null,
+            "postOnly": false,
+            "ioc": false,
+            "createdAt": "2021-05-10T21:00:24.625864+00:00",
+            "future": "ETH-PERP"
+        }
+    }
+][
+    {
+        "success": false,
+        "error": "Not enough balances"
+    },
+    {
+        "success": true,
+        "result": {
+            "id": 46931536388,
+            "clientId": "414",
+            "market": "ETH-PERP",
+            "type": "limit",
+            "side": "sell",
+            "price": 3952.4,
+            "size": 0.004,
+            "status": "new",
+            "filledSize": 0.0,
+            "remainingSize": 0.004,
+            "reduceOnly": false,
+            "liquidation": null,
+            "avgFillPrice": null,
+            "postOnly": false,
+            "ioc": false,
+            "createdAt": "2021-05-10T21:05:56.170456+00:00",
+            "future": "ETH-PERP"
+        }
+    }
+][
+    {
+        "success": true,
+        "result": {
+            "id": 46933010784,
+            "clientId": "9558",
+            "market": "ETH/USD",
+            "type": "limit",
+            "side": "buy",
+            "price": 3974.8,
+            "size": 0.004,
+            "status": "new",
+            "filledSize": 0.0,
+            "remainingSize": 0.004,
+            "reduceOnly": false,
+            "liquidation": null,
+            "avgFillPrice": null,
+            "postOnly": false,
+            "ioc": false,
+            "createdAt": "2021-05-10T21:12:29.379624+00:00",
+            "future": null
+        }
+    },
+    {
+        "success": true,
+        "result": {
+            "id": 46933010881,
+            "clientId": "818",
+            "market": "ETH-PERP",
+            "type": "limit",
+            "side": "sell",
+            "price": 3980.5,
+            "size": 0.004,
+            "status": "new",
+            "filledSize": 0.0,
+            "remainingSize": 0.004,
+            "reduceOnly": false,
+            "liquidation": false,
+            "avgFillPrice": null,
+            "postOnly": false,
+            "ioc": false,
+            "createdAt": "2021-05-10T21:12:29.394508+00:00",
+            "future": "ETH-PERP"
+        }
+    }
+]
