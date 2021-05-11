@@ -10,6 +10,7 @@ import time
 
 import random
 from dataclasses import dataclass
+import threading
 
 
 @dataclass
@@ -18,7 +19,6 @@ class Order:
     
 buy_price = 0
 sell_price = 0
-order = Order()
 logger.add(f"file_{datetime.datetime.now().date()}.log")
 
 
@@ -62,18 +62,18 @@ async def create_orders(buy, sell):
     
         
     
-async def check_opportunities(asset_pair, bot):
+async def check_opportunities(asset_pair, bot, order):
     
     # Giving some time to download data from stream
     await asyncio.sleep(3)
     
-    
+    symbol = asset_pair.first_leg.symbol.replace("/USD", "")
     while True:
         # Context switching during the analyze procedure
         await asyncio.sleep(0.001)
         basis = await asset_pair.get_basis()
         
-        print(basis)
+        #print(basis)
         
         if basis >= 0.14 and order.sent == False:
             order.sent = True
@@ -83,7 +83,7 @@ async def check_opportunities(asset_pair, bot):
             
             logger.success(f'Profitable entry! {asset_pair.first_leg.ask_p}, {asset_pair.second_leg.bid_p}')
             
-            client_ids = [int(random.random() * 10000), int(random.random() * 10000)]
+            client_ids = [symbol + str(int(random.random() * 10000)), symbol + str(int(random.random() * 10000))]
             result = await create_orders(
                 buy(bot, asset_pair.first_leg, asset_pair.volume, client_ids[0]),
                 sell(bot, asset_pair.second_leg, asset_pair.volume, client_ids[1])
@@ -114,7 +114,7 @@ async def check_opportunities(asset_pair, bot):
             
             logger.success(f'Profitable exit! {asset_pair.second_leg.ask_p}, {asset_pair.first_leg.bid_p}')
             
-            client_ids = [int(random.random() * 10000), int(random.random() * 10000)]
+            client_ids = [symbol + str(int(random.random() * 10000)), symbol + str(int(random.random() * 10000))]
 
             
             logger.info(client_ids[0])
@@ -156,22 +156,52 @@ async def check_opportunities(asset_pair, bot):
 
 async def main(asset_pair, first_leg, second_leg, bot):
     
+    order = Order()
+
     await asyncio.gather(
         asyncio.create_task(currency_watch(first_leg, bot)),
         asyncio.create_task(currency_watch(second_leg, bot)),
-        asyncio.create_task(check_opportunities(asset_pair, bot))
+        asyncio.create_task(check_opportunities(asset_pair, bot, order))
         )
 
 
-if __name__ == "__main__":
+def mainThread(pair, bot):
     
-    pairs = [('MEDIA/USD', 'MEDIA-PERP'), ('BNB/USD', 'BNB-PERP'), ('DOT/USD', 'DOT-PERP')]
-    
-    bot = Bot(getenv('KEY'), getenv('SECRET'))
-
-    first_leg = Asset(symbol='ETH/USD')
-    second_leg = Asset(symbol='ETH-PERP')
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    first_leg = Asset(symbol=pair["spot"])
+    second_leg = Asset(symbol=pair["perp"])
     asset_pair = AssetPair(first_leg=first_leg, second_leg=second_leg)
+
+    loop.run_until_complete(main(asset_pair, asset_pair.first_leg, asset_pair.second_leg, bot))
+
+if __name__ == "__main__":
+
+    symbolFile = open("symbols.json","r")
+    pairs = json.load(symbolFile)
+    
+    keyFile = open("config.json", "r")
+    keys = json.load(keyFile) 
+
+    bot = Bot(keys["public_key"], keys["secret_key"], name = keys["sub_acc_name"])
+
+    #pairs = [('MEDIA/USD', 'MEDIA-PERP'), ('BNB/USD', 'BNB-PERP'), ('DOT/USD', 'DOT-PERP')]
+
+    threads = []
+
+    for pair in pairs[:10]:
+        print(pair)
+        x = threading.Thread(target=mainThread, args=(pair, bot))
+        threads.append(x)
+        x.start()
+
+    for thread in threads:
+        thread.join()
+    
+    # bot = Bot(keys["public_key"], keys["secret_key"])
+    # first_leg = Asset(symbol='ETH/USD')
+    # second_leg = Asset(symbol='ETH-PERP')
+    # asset_pair = AssetPair(first_leg=first_leg, second_leg=second_leg)
     
     
-    asyncio.run(main(asset_pair, asset_pair.first_leg, asset_pair.second_leg, bot))
+    # asyncio.run(main(asset_pair, asset_pair.first_leg, asset_pair.second_leg, bot))

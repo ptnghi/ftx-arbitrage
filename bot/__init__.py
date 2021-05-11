@@ -10,9 +10,11 @@ from bot.constants import ws, rest
 
 
 class Bot:
-    def __init__(self, key, secret) -> None:
+    def __init__(self, key, secret, name = None) -> None:
         self.key = key
         self.secret = secret
+        if name:
+            self.name = name
         
     async def _send_request(self, api, method, params={}):
         
@@ -107,6 +109,8 @@ class AssetPair:
         return self.__dict__.get(value)
     
     async def get_basis(self):
+        if (type(self.second_leg.bid_p) != 'float' or type(self.first_leg.ask_p) != 'float'):
+            return 0
         return 100 * (self.second_leg.bid_p - self.first_leg.ask_p) / self.first_leg.ask_p
 
     async def check_buy_opportunity(self):

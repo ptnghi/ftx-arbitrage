@@ -10,6 +10,10 @@ class Loader:
     def __init__(self, currency, bot) -> None:
         self._key = bot.key
         self._secret = bot.secret
+        if hasattr(bot, "name"):
+            self._name = bot.name
+        else:
+            self._name = None
         self._currency = currency
         
     async def initialize_iterator(self):
@@ -19,10 +23,16 @@ class Loader:
             async with websockets.connect(ws) as client:
                 
                 # Logging in websocket server
-                await client.send(
-                    json.dumps(
-                        {'op': 'login', 'args': {'key': self._key, 'sign': hmac.new(
-                            self._secret.encode(), f'{ts}websocket_login'.encode(), 'sha256').hexdigest(), 'time': ts}}).encode())
+                if self._name:
+                    await client.send(
+                        json.dumps(
+                            {'op': 'login', 'args': {'key': self._key,'subaccount': self._name,'sign': hmac.new(
+                                self._secret.encode(), f'{ts}websocket_login'.encode(), 'sha256').hexdigest(), 'time': ts}}).encode())
+                else:
+                    await client.send(
+                        json.dumps(
+                            {'op': 'login', 'args': {'key': self._key, 'sign': hmac.new(
+                                self._secret.encode(), f'{ts}websocket_login'.encode(), 'sha256').hexdigest(), 'time': ts}}).encode())
                 
                 # Subscribing for data listening
                 if isinstance(self._currency, list):
@@ -34,7 +44,9 @@ class Loader:
                     await client.send(json.dumps({'op': 'subscribe', 'channel': 'ticker', 'market': self._currency}))
                 
                 # If we didnt subscribe for a stream, than there is a problem
-                if not json.loads(await client.recv()).get('type') == 'subscribed':
+                resp = json.loads(await client.recv())
+                if not resp.get('type') == 'subscribed':
+                    print(resp)
                     logger.error('Didnt subscribe')
                     return
                 
