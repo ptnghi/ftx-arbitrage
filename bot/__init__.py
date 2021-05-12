@@ -1,3 +1,4 @@
+from os import name
 from loguru import logger
 from dataclasses import dataclass
 import time
@@ -36,6 +37,12 @@ class Bot:
                 async with session.request(method, rest + api) as response:
                     return await response.json()
                 
+    async def getSubAccBalance(self):
+        if not name:
+            return
+        api = '/subaccounts/' + self.name + '/balances'
+        method = 'GET'
+        return await self._send_request(api, method)
                 
     async def buy(self,
                   market,
